@@ -1,7 +1,5 @@
 FROM php:7.1.0-apache
 
-# RUN apt-get update && apt-get install php7-apcu php7-gd php7-intl git 
-
 RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -15,4 +13,12 @@ RUN apt-get update && apt-get install -y \
 RUN pecl install apcu-5.1.7 \
     && docker-php-ext-enable apcu
 
-COPY mediawiki-1.28.0 /var/www/html/mediawiki
+RUN curl -fSL https://www.mediawiki.org/keys/keys.txt -o keys.txt  && gpg --import keys.txt
+
+RUN MEDIAWIKI_DOWNLOAD_URL="https://releases.wikimedia.org/mediawiki/1.28/mediawiki-1.28.0.tar.gz"; \
+    set -x; \
+    mkdir -p /var/www/html/mediawiki \
+    && curl -fSL "$MEDIAWIKI_DOWNLOAD_URL" -o mediawiki.tar.gz \
+    && curl -fSL "${MEDIAWIKI_DOWNLOAD_URL}.sig" -o mediawiki.tar.gz.sig \
+    && gpg --verify mediawiki.tar.gz.sig \
+    && tar -xf mediawiki.tar.gz -C /var/www/html/mediawiki --strip-components=1
