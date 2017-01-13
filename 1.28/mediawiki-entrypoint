@@ -1,0 +1,8 @@
+#!/bin/sh
+
+php /var/www/html${MW_SCRIPT_PATH}/maintenance/install.php \
+--pass $MW_ADMIN_PASSWORD --scriptpath $MW_SCRIPT_PATH --lang $MW_LANG \
+--dbtype postgres --dbserver $DB_PORT_5432_TCP_ADDR --dbport $MW_DB_PORT --dbname $DB_ENV_POSTGRES_DB \
+--dbuser $DB_ENV_POSTGRES_USER --dbpass $DB_ENV_POSTGRES_PASSWORD $MW_NAME $MW_ADMIN_USERNAME
+
+exec apache2-foreground

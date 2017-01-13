@@ -15,10 +15,17 @@ RUN pecl install apcu-5.1.7 \
 
 RUN curl -fSL https://www.mediawiki.org/keys/keys.txt -o keys.txt  && gpg --import keys.txt
 
+ENV MW_NAME=Mediawiki MW_ADMIN_USERNAME=admin MW_ADMIN_PASSWORD=dockermediawiki MW_SCRIPT_PATH="/wiki" MW_LANG=en \
+    MW_DB_PORT=5432 MW_HOSTNAME=http://localhost
+
 RUN MEDIAWIKI_DOWNLOAD_URL="https://releases.wikimedia.org/mediawiki/1.28/mediawiki-1.28.0.tar.gz"; \
     set -x; \
-    mkdir -p /var/www/html/mediawiki \
-    && curl -fSL "$MEDIAWIKI_DOWNLOAD_URL" -o mediawiki.tar.gz \
+    mkdir /var/www/html${MW_SCRIPT_PATH} && \
+    curl -fSL "$MEDIAWIKI_DOWNLOAD_URL" -o mediawiki.tar.gz \
     && curl -fSL "${MEDIAWIKI_DOWNLOAD_URL}.sig" -o mediawiki.tar.gz.sig \
     && gpg --verify mediawiki.tar.gz.sig \
-    && tar -xf mediawiki.tar.gz -C /var/www/html/mediawiki --strip-components=1
+    && tar -xf mediawiki.tar.gz -C /var/www/html${MW_SCRIPT_PATH} --strip-components=1
+
+COPY mediawiki-entrypoint /usr/local/bin
+
+ENTRYPOINT mediawiki-entrypoint
